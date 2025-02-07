@@ -1,7 +1,4 @@
-bin
-include
-lib
-.Python
-tests/
-.envrc
+env
 __pycache__
+.pytest_cache
+improvements.txt
