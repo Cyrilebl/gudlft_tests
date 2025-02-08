@@ -22,16 +22,16 @@ def home():
     email = request.form["email"]
 
     if not email:
-        flash("Email is required.")
-        return redirect(url_for("main.index"))
+        flash("Email is required")
+        return redirect(request.referrer)
 
     clubs = current_app.clubs
     competitions = current_app.competitions
 
     club = next((club for club in clubs if club["email"] == email), None)
     if club is None:
-        flash("Email not found.")
-        return redirect(url_for("main.index"))
+        flash("Email not found")
+        return redirect(request.referrer)
 
     return render_template("welcome.html", club=club, competitions=competitions)
 

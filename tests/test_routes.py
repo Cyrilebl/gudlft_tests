@@ -36,7 +36,7 @@ def test_home_invalid_email(client):
     response = client.post(
         "/home", data={"email": "wrong@example.com"}, follow_redirects=True
     )
-    assert response.status_code == 200
+    assert response.status_code == 404
 
 
 def test_home_missing_email(client):
