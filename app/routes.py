@@ -54,14 +54,17 @@ def book(competition, club):
 
 @main.route("/purchasePlaces", methods=["POST"])
 def purchasePlaces():
+    # Retrieve the list of clubs and competitions
     clubs = current_app.clubs
     competitions = current_app.competitions
 
+    # Find the selected club and competition based on the submitted form data
+    club = [c for c in clubs if c["name"] == request.form["club"]][0]
     competition = [c for c in competitions if c["name"] == request.form["competition"]][
         0
     ]
-    club = [c for c in clubs if c["name"] == request.form["club"]][0]
 
+    # Get the number of places requested
     places_required = request.form["places"]
     if not places_required:
         flash("Please enter a number")
