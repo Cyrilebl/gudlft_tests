@@ -23,13 +23,15 @@ def home():
 
     if not email:
         flash("Email is required.")
+        return redirect(url_for("main.index"))
 
     clubs = current_app.clubs
     competitions = current_app.competitions
 
-    club = (club for club in clubs if club["email"] == email)
+    club = next((club for club in clubs if club["email"] == email), None)
     if club is None:
         flash("Email not found.")
+        return redirect(url_for("main.index"))
 
     return render_template("welcome.html", club=club, competitions=competitions)
 
@@ -38,11 +40,11 @@ def home():
 def book(competition, club):
     clubs = current_app.clubs
     competitions = current_app.competitions
-    foundClub = [c for c in clubs if c["name"] == club][0]
-    foundCompetition = [c for c in competitions if c["name"] == competition][0]
-    if foundClub and foundCompetition:
+    found_club = [c for c in clubs if c["name"] == club][0]
+    found_competition = [c for c in competitions if c["name"] == competition][0]
+    if found_club and found_competition:
         return render_template(
-            "booking.html", club=foundClub, competition=foundCompetition
+            "booking.html", club=found_club, competition=found_competition
         )
     else:
         flash("Something went wrong-please try again")
