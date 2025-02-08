@@ -7,7 +7,7 @@ from config import TestingConfig
 @pytest.fixture
 def client():
     """Create a test client for making requests"""
-    app = create_app(TestingConfig.__dict__)
+    app = create_app(TestingConfig)
     with app.test_client() as client:
         yield client
 
@@ -40,6 +40,6 @@ def test_home_invalid_email(client):
 
 
 def test_home_missing_email(client):
-    """Test when no email is provided."""
+    """Test with no email provided."""
     response = client.post("/home", data={}, follow_redirects=True)
     assert response.status_code == 400
