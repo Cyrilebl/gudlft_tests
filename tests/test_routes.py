@@ -1,15 +1,4 @@
-import pytest
-
-from app import create_app
-from config import TestingConfig
-
-
-@pytest.fixture
-def client():
-    """Create a test client for making requests"""
-    app = create_app(TestingConfig)
-    with app.test_client() as client:
-        yield client
+# Index
 
 
 def test_index_route(client):
@@ -18,34 +7,30 @@ def test_index_route(client):
     assert response.status_code == 200
 
 
-@pytest.fixture(autouse=True)
-def setup(client, monkeypatch):
-    """Set up fake data"""
-    fake_club = [{"name": "Club Test", "email": "test@example.com", "points": "10"}]
-    fake_competition = [{"name": "Competition Test", "numberOfPlaces": "5"}]
-    monkeypatch.setattr(client.application, "clubs", fake_club)
-    monkeypatch.setattr(client.application, "competitions", fake_competition)
+# Login
 
 
-def test_home_valid_email(client):
+def test_login_valid_email(client):
     """Test with a valid email"""
-    response = client.post("/home", data={"email": "test@example.com"})
-    assert response.status_code == 200
+    response = client.post("/login", data={"email": "test@example.com"})
+    assert response.status_code == 302
 
 
-def test_home_invalid_email(client):
+def test_login_invalid_email(client):
     """Test with an invalid email"""
     response = client.post(
-        "/home", data={"email": "wrong@example.com"}, follow_redirects=True
+        "/login", data={"email": "wrong@example.com"}, follow_redirects=True
     )
     assert response.status_code == 200
 
 
-def test_home_missing_email(client):
+def test_login_missing_email(client):
     """Test with no email provided"""
-    response = client.post("/home", data={}, follow_redirects=True)
+    response = client.post("/login", data={}, follow_redirects=True)
     assert response.status_code == 400
 
+
+# Test Purchase Places
 
 # Tests on valid scenarios
 
@@ -95,6 +80,16 @@ def test_purchase_places_with_zero(client):
     )
     assert response.status_code == 200
     assert b"Please enter a number greater than zero" in response.data
+
+
+def test_purchase_more_than_12_places(client):
+    """Test to request more than 12 club points"""
+    response = client.post(
+        "/purchasePlaces",
+        data={"club": "Club Test", "competition": "Competition Test", "places": "13"},
+    )
+    assert response.status_code == 200
+    assert b"You cannot book more than 12 places" in response.data
 
 
 def test_purchase_places_request_above_club_points(client):

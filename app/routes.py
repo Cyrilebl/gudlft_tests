@@ -7,6 +7,7 @@ from flask import (
     redirect,
     flash,
     url_for,
+    session,
 )
 
 
@@ -18,8 +19,8 @@ def index():
     return render_template("index.html")
 
 
-@main.route("/home", methods=["POST"])
-def home():
+@main.route("/login", methods=["POST"])
+def login():
     email = request.form["email"]
 
     if not email:
@@ -27,12 +28,23 @@ def home():
         return render_template("index.html")
 
     clubs = current_app.clubs
-    competitions = current_app.competitions
-
     club = next((club for club in clubs if club["email"] == email), None)
+
     if club is None:
         flash("Email not found.")
         return render_template("index.html")
+
+    session["club_name"] = club["name"]
+    return redirect(url_for("main.home"))
+
+
+@main.route("/home", methods=["GET"])
+def home():
+    club_name = session.get("club_name")
+    clubs = current_app.clubs
+    competitions = current_app.competitions
+
+    club = next((club for club in clubs if club["name"] == club_name))
 
     return render_template("welcome.html", club=club, competitions=competitions)
 
@@ -74,8 +86,18 @@ def purchase_places():
     club_points = int(club["points"])
     places_available = int(competition["numberOfPlaces"])
 
+    places_already_booked = int(
+        club.get("places_already_booked", {}).get(competition["name"], 0)
+    )
+
     if places_required <= 0:
         flash("Please enter a number greater than zero")
+        return render_template("booking.html", club=club, competition=competition)
+
+    elif (places_already_booked + places_required) > 12:
+        flash(
+            f"You cannot book more than 12 places for '{competition['name']}' competition"
+        )
         return render_template("booking.html", club=club, competition=competition)
 
     elif places_required > club_points:
@@ -91,6 +113,13 @@ def purchase_places():
     club["points"] = str(club_points - places_required)
     competition["numberOfPlaces"] = str(places_available - places_required)
 
+    if "places_already_booked" not in club:
+        club["places_already_booked"] = {}
+
+    club["places_already_booked"][competition["name"]] = (
+        club["places_already_booked"].get(competition["name"], 0) + places_required
+    )
+
     # Update club points
     with open("data/clubs.json", "w") as file:
         json.dump({"clubs": clubs}, file)
@@ -101,9 +130,6 @@ def purchase_places():
 
     flash("Great - booking complete!")
     return render_template("welcome.html", club=club, competitions=competitions)
-
-
-# TODO: Add route for points display
 
 
 @main.route("/logout")
