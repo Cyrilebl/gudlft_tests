@@ -53,7 +53,7 @@ def book(competition, club):
 
 
 @main.route("/purchasePlaces", methods=["POST"])
-def purchasePlaces():
+def purchase_places():
     # Retrieve the list of clubs and competitions
     clubs = current_app.clubs
     competitions = current_app.competitions
@@ -68,7 +68,7 @@ def purchasePlaces():
     places_required = request.form["places"]
     if not places_required:
         flash("Please enter a number")
-        return redirect(request.referrer)
+        return render_template("welcome.html", club=club, competitions=competitions)
 
     places_required = int(places_required)
     club_points = int(club["points"])
@@ -76,17 +76,17 @@ def purchasePlaces():
 
     if places_required <= 0:
         flash("Please enter a number greater than zero")
-        return redirect(request.referrer)
+        return render_template("welcome.html", club=club, competitions=competitions)
 
     elif places_required > club_points:
         point_label = "point" if club_points == 1 else "points"
         flash(f"Sorry, your club has {club_points} {point_label} left")
-        return redirect(request.referrer)
+        return render_template("welcome.html", club=club, competitions=competitions)
 
     elif places_required > places_available:
-        places_label = "place" if club_points == 1 else "places"
-        flash(f"Sorry, only {places_available} {places_label} left")
-        return redirect(request.referrer)
+        places_label = "place" if places_available == 1 else "places"
+        flash(f"Sorry, the competition has {places_available} {places_label} left")
+        return render_template("welcome.html", club=club, competitions=competitions)
 
     club["points"] = str(club_points - places_required)
     competition["numberOfPlaces"] = str(places_available - places_required)
