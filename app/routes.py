@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from flask import (
     Blueprint,
     current_app,
@@ -90,8 +91,15 @@ def purchase_places():
         club.get("places_already_booked", {}).get(competition["name"], 0)
     )
 
+    today_s_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    competition_date = competition["date"]
+
     if places_required <= 0:
         flash("Please enter a number greater than zero")
+        return render_template("booking.html", club=club, competition=competition)
+
+    elif today_s_date > competition_date:
+        flash(f"This competition already took place on {competition_date}")
         return render_template("booking.html", club=club, competition=competition)
 
     elif (places_already_booked + places_required) > 12:
