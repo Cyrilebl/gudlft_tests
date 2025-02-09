@@ -24,7 +24,7 @@ def home():
 
     if not email:
         flash("Email is required.")
-        return redirect(url_for("main.index"))
+        return render_template("index.html")
 
     clubs = current_app.clubs
     competitions = current_app.competitions
@@ -32,7 +32,7 @@ def home():
     club = next((club for club in clubs if club["email"] == email), None)
     if club is None:
         flash("Email not found.")
-        return redirect(url_for("main.index"))
+        return render_template("index.html")
 
     return render_template("welcome.html", club=club, competitions=competitions)
 
@@ -68,7 +68,7 @@ def purchase_places():
     places_required = request.form["places"]
     if not places_required:
         flash("Please enter a number")
-        return render_template("welcome.html", club=club, competitions=competitions)
+        return render_template("booking.html", club=club, competition=competition)
 
     places_required = int(places_required)
     club_points = int(club["points"])
@@ -76,17 +76,17 @@ def purchase_places():
 
     if places_required <= 0:
         flash("Please enter a number greater than zero")
-        return render_template("welcome.html", club=club, competitions=competitions)
+        return render_template("booking.html", club=club, competition=competition)
 
     elif places_required > club_points:
         point_label = "point" if club_points == 1 else "points"
         flash(f"Sorry, your club has {club_points} {point_label} left")
-        return render_template("welcome.html", club=club, competitions=competitions)
+        return render_template("booking.html", club=club, competition=competition)
 
     elif places_required > places_available:
         places_label = "place" if places_available == 1 else "places"
         flash(f"Sorry, the competition has {places_available} {places_label} left")
-        return render_template("welcome.html", club=club, competitions=competitions)
+        return render_template("booking.html", club=club, competition=competition)
 
     club["points"] = str(club_points - places_required)
     competition["numberOfPlaces"] = str(places_available - places_required)
