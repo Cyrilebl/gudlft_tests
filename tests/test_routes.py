@@ -1,3 +1,4 @@
+import pytest
 from freezegun import freeze_time
 
 # Index
@@ -23,15 +24,15 @@ def test_login_invalid_email(client):
     response = client.post(
         "/login", data={"email": "wrong@example.com"}, follow_redirects=True
     )
-    assert response.status_code == 200
     assert b"Email not found" in response.data
+    assert response.status_code == 200
 
 
 def test_login_missing_email(client):
     """Test with no email provided"""
     response = client.post("/login", data={"email": ""}, follow_redirects=True)
-    assert response.status_code == 200
     assert b"Email is required" in response.data
+    assert response.status_code == 200
 
 
 # Home
@@ -79,34 +80,22 @@ def test_purchase_places_with_valid_number(client):
 # Tests on invalid scenarios
 
 
-def test_purchase_places_with_empty_number(client):
-    """Test with no value provided"""
+@pytest.mark.parametrize(
+    "places, expected_message",
+    [
+        ("", b"Please enter a number"),
+        ("-2", b"Please enter a number greater than zero"),
+        ("0", b"Please enter a number greater than zero"),
+    ],
+)
+def test_purchase_places_invalid_numbers(client, places, expected_message):
+    """Test invalid number of places"""
     response = client.post(
         "/purchasePlaces",
-        data={**client.common_data, "places": ""},
+        data={**client.common_data, "places": places},
     )
+    assert expected_message in response.data
     assert response.status_code == 200
-    assert b"Please enter a number" in response.data
-
-
-def test_purchase_places_with_negative_number(client):
-    """Test with no negative number"""
-    response = client.post(
-        "/purchasePlaces",
-        data={**client.common_data, "places": "-2"},
-    )
-    assert response.status_code == 200
-    assert b"Please enter a number greater than zero" in response.data
-
-
-def test_purchase_places_with_zero(client):
-    """Test with zero"""
-    response = client.post(
-        "/purchasePlaces",
-        data={**client.common_data, "places": "0"},
-    )
-    assert response.status_code == 200
-    assert b"Please enter a number greater than zero" in response.data
 
 
 @freeze_time("2030-01-01 12:00:00")
@@ -119,41 +108,29 @@ def test_purchase_in_past_competition(client):
             "places": 2,
         },
     )
-    assert response.status_code == 200
     assert (
         b"This competition already took place on January 01, 2027, at 10:00 AM"
         in response.data
     )
+    assert response.status_code == 200
 
 
-def test_purchase_more_than_12_places(client):
-    """Test to request more than 12 club points"""
+@pytest.mark.parametrize(
+    "places, expected_message",
+    [
+        ("13", b"You cannot book more than 12 places"),
+        ("11", b"Sorry, your club has 10 points left"),
+        ("6", b"Sorry, the competition has 5 places left"),
+    ],
+)
+def test_purchase_places_invalid_requests(client, places, expected_message):
+    """Test invalid places purchase requests"""
     response = client.post(
         "/purchasePlaces",
-        data={**client.common_data, "places": "13"},
+        data={**client.common_data, "places": places},
     )
+    assert expected_message in response.data
     assert response.status_code == 200
-    assert b"You cannot book more than 12 places" in response.data
-
-
-def test_purchase_places_request_above_club_points(client):
-    """Test to request more club points than are available"""
-    response = client.post(
-        "/purchasePlaces",
-        data={**client.common_data, "places": "11"},
-    )
-    assert response.status_code == 200
-    assert b"Sorry, your club has 10 points left" in response.data
-
-
-def test_purchase_places_request_above_competition_places(client):
-    """Test to request more competition places than are available"""
-    response = client.post(
-        "/purchasePlaces",
-        data={**client.common_data, "places": "6"},
-    )
-    assert response.status_code == 200
-    assert b"Sorry, the competition has 5 places left" in response.data
 
 
 # Logout
