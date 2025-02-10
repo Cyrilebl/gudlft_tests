@@ -24,15 +24,40 @@ def test_login_invalid_email(client):
         "/login", data={"email": "wrong@example.com"}, follow_redirects=True
     )
     assert response.status_code == 200
+    assert b"Email not found" in response.data
 
 
 def test_login_missing_email(client):
     """Test with no email provided"""
-    response = client.post("/login", data={}, follow_redirects=True)
-    assert response.status_code == 400
+    response = client.post("/login", data={"email": ""}, follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Email is required" in response.data
 
 
-# Test Purchase Places
+# Home
+
+
+def test_home(client):
+    """Test home route"""
+    with client.session_transaction() as sess:
+        sess["club_name"] = "Club Test"
+
+    response = client.get("/home")
+    assert response.status_code == 200
+
+
+# Book
+
+
+def test_book(client):
+    """Test the booking page with valid competition and club"""
+    competition_name = "Competition Test"
+    club_name = "Club Test"
+    response = client.get(f"/book/{competition_name}/{club_name}")
+    assert response.status_code == 200
+
+
+# Purchase Places
 
 # Tests on valid scenarios
 
@@ -129,3 +154,12 @@ def test_purchase_places_request_above_competition_places(client):
     )
     assert response.status_code == 200
     assert b"Sorry, the competition has 5 places left" in response.data
+
+
+# Logout
+
+
+def test_logout(client):
+    """Test if logout route returns a 302 status."""
+    response = client.get("/logout")
+    assert response.status_code == 302
