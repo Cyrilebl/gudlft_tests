@@ -20,6 +20,12 @@ def index():
     return render_template("index.html")
 
 
+@main.route("/club-board")
+def club_board():
+    clubs = current_app.clubs
+    return render_template("club-board.html", clubs=clubs)
+
+
 @main.route("/login", methods=["POST"])
 def login():
     email = request.form["email"]
