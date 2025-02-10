@@ -25,21 +25,21 @@ def login():
     email = request.form["email"]
 
     if not email:
-        flash("Email is required.")
+        flash("Email is required")
         return render_template("index.html")
 
     clubs = current_app.clubs
     club = next((club for club in clubs if club["email"] == email), None)
 
     if club is None:
-        flash("Email not found.")
+        flash("Email not found")
         return render_template("index.html")
 
     session["club_name"] = club["name"]
     return redirect(url_for("main.home"))
 
 
-@main.route("/home", methods=["GET"])
+@main.route("/home")
 def home():
     club_name = session.get("club_name")
     clubs = current_app.clubs
@@ -56,13 +56,9 @@ def book(competition, club):
     competitions = current_app.competitions
     found_club = [c for c in clubs if c["name"] == club][0]
     found_competition = [c for c in competitions if c["name"] == competition][0]
-    if found_club and found_competition:
-        return render_template(
-            "booking.html", club=found_club, competition=found_competition
-        )
-    else:
-        flash("Something went wrong-please try again")
-        return render_template("welcome.html", club=club, competitions=competitions)
+    return render_template(
+        "booking.html", club=found_club, competition=found_competition
+    )
 
 
 @main.route("/purchasePlaces", methods=["POST"])
@@ -91,7 +87,7 @@ def purchase_places():
         club.get("places_already_booked", {}).get(competition["name"], 0)
     )
 
-    today_s_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     competition_date = competition["date"]
     competition_date_object = datetime.strptime(competition_date, "%Y-%m-%d %H:%M:%S")
     formatted_date = competition_date_object.strftime("%B %d, %Y, at %H:%M %p")
@@ -100,7 +96,7 @@ def purchase_places():
         flash("Please enter a number greater than zero")
         return render_template("booking.html", club=club, competition=competition)
 
-    elif today_s_date > competition_date:
+    elif current_date > competition_date:
         flash(f"This competition already took place on {formatted_date}")
         return render_template("booking.html", club=club, competition=competition)
 
