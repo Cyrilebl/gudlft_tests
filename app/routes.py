@@ -98,28 +98,29 @@ def purchase_places():
     competition_date_object = datetime.strptime(competition_date, "%Y-%m-%d %H:%M:%S")
     formatted_date = competition_date_object.strftime("%B %d, %Y, at %H:%M %p")
 
+    error_message = None
+
     if places_required <= 0:
-        flash("Please enter a number greater than zero")
-        return render_template("booking.html", club=club, competition=competition)
+        error_message = "Please enter a number greater than zero"
 
     elif current_date > competition_date:
-        flash(f"This competition already took place on {formatted_date}")
-        return render_template("booking.html", club=club, competition=competition)
+        error_message = f"This competition already took place on {formatted_date}"
 
     elif (places_already_booked + places_required) > 12:
-        flash(
-            f"You cannot book more than 12 places for '{competition['name']}' competition"
-        )
-        return render_template("booking.html", club=club, competition=competition)
+        error_message = f"You cannot book more than 12 places for '{competition['name']}' competition"
 
     elif places_required > club_points:
         point_label = "point" if club_points == 1 else "points"
-        flash(f"Sorry, your club has {club_points} {point_label} left")
-        return render_template("booking.html", club=club, competition=competition)
+        error_message = f"Sorry, your club has {club_points} {point_label} left"
 
     elif places_required > places_available:
         places_label = "place" if places_available == 1 else "places"
-        flash(f"Sorry, the competition has {places_available} {places_label} left")
+        error_message = (
+            f"Sorry, the competition has {places_available} {places_label} left"
+        )
+
+    if error_message:
+        flash(error_message)
         return render_template("booking.html", club=club, competition=competition)
 
     club["points"] = str(club_points - places_required)
