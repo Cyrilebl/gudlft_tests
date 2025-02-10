@@ -96,7 +96,7 @@ def test_purchase_in_past_competition(client):
     )
     assert response.status_code == 200
     assert (
-        b"This competition already took place on January 01 at 10:00 AM"
+        b"This competition already took place on January 01, 2027, at 10:00 AM"
         in response.data
     )
 

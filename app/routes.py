@@ -93,13 +93,15 @@ def purchase_places():
 
     today_s_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     competition_date = competition["date"]
+    competition_date_object = datetime.strptime(competition_date, "%Y-%m-%d %H:%M:%S")
+    formatted_date = competition_date_object.strftime("%B %d, %Y, at %H:%M %p")
 
     if places_required <= 0:
         flash("Please enter a number greater than zero")
         return render_template("booking.html", club=club, competition=competition)
 
     elif today_s_date > competition_date:
-        flash(f"This competition already took place on {competition_date}")
+        flash(f"This competition already took place on {formatted_date}")
         return render_template("booking.html", club=club, competition=competition)
 
     elif (places_already_booked + places_required) > 12:
