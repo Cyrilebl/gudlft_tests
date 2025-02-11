@@ -133,13 +133,14 @@ def purchase_places():
         club["places_already_booked"].get(competition["name"], 0) + places_required
     )
 
-    # Update club points
-    with open("data/clubs.json", "w") as file:
-        json.dump({"clubs": clubs}, file)
+    if not current_app.config["TESTING"]:
+        # Update club points
+        with open("data/clubs.json", "w") as file:
+            json.dump({"clubs": clubs}, file)
 
-    # Update competition places
-    with open("data/competitions.json", "w") as file:
-        json.dump({"competitions": competitions}, file)
+        # Update competition places
+        with open("data/competitions.json", "w") as file:
+            json.dump({"competitions": competitions}, file)
 
     flash("Great - booking complete!")
     return render_template("welcome.html", club=club, competitions=competitions)
