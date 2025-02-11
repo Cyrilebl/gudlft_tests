@@ -59,7 +59,7 @@ class TestPurchasePlaces:
     def test_purchase_places_with_valid_number(self):
         """Test with a club having enough points and a competition with enough places."""
         response = self.client.post(
-            "/purchasePlaces",
+            "/purchase-places",
             data={**self.common_data, "places": "3"},
         )
         assert response.status_code == 200
@@ -80,7 +80,7 @@ class TestPurchasePlaces:
     def test_purchase_places_invalid_numbers(self, places, expected_message):
         """Test invalid number of places"""
         response = self.client.post(
-            "/purchasePlaces",
+            "/purchase-places",
             data={**self.common_data, "places": places},
         )
         assert expected_message in response.data
@@ -90,7 +90,7 @@ class TestPurchasePlaces:
     def test_purchase_in_past_competition(self):
         """Test booking places for a past competition"""
         response = self.client.post(
-            "/purchasePlaces",
+            "/purchase-places",
             data={
                 **self.common_data,
                 "places": 2,
@@ -113,7 +113,7 @@ class TestPurchasePlaces:
     def test_purchase_places_invalid_requests(self, places, expected_message):
         """Test invalid places purchase requests"""
         response = self.client.post(
-            "/purchasePlaces",
+            "/purchase-places",
             data={**self.common_data, "places": places},
         )
         assert expected_message in response.data

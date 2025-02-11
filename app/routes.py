@@ -67,7 +67,7 @@ def book(competition, club):
     )
 
 
-@main.route("/purchasePlaces", methods=["POST"])
+@main.route("/purchase-places", methods=["POST"])
 def purchase_places():
     # Retrieve the list of clubs and competitions
     clubs = current_app.clubs

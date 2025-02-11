@@ -12,7 +12,7 @@ def test_full_user_flow(client):
 
     # Step 3: Book places for a competition
     response = client.post(
-        "/purchasePlaces",
+        "/purchase-places",
         data={**client.common_data, "places": "3"},
         follow_redirects=True,
     )
@@ -27,7 +27,7 @@ def test_full_user_flow(client):
 
 def test_booking_without_login(client):
     response = client.post(
-        "/purchasePlaces",
+        "/purchase-places",
         data={**client.common_data},
         follow_redirects=True,
     )
