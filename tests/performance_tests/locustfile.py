@@ -8,6 +8,7 @@ class ProjectPerfTest(HttpUser):
         with open("data/clubs.json", "r") as file:
             clubs_data = json.load(file)
             self.clubs = [club["name"] for club in clubs_data["clubs"]]
+            self.emails = [club["email"] for club in clubs_data["clubs"]]
 
         with open("data/competitions.json", "r") as file:
             competitions_data = json.load(file)
@@ -15,6 +16,7 @@ class ProjectPerfTest(HttpUser):
                 comp["name"] for comp in competitions_data["competitions"]
             ]
 
+        self.email = random.choice(self.emails)
         self.club = random.choice(self.clubs)
         self.competition = random.choice(self.competitions)
 
@@ -28,7 +30,7 @@ class ProjectPerfTest(HttpUser):
 
     @task
     def login(self):
-        self.client.post("/login", {"email": "john@simplylift.co"})
+        self.client.post("/login", {"email": self.email})
 
     @task
     def home(self):
@@ -50,5 +52,6 @@ class ProjectPerfTest(HttpUser):
             },
         )
 
+    @task
     def logout(self):
         self.client.get("/logout")
