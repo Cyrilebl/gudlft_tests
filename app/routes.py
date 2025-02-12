@@ -56,7 +56,7 @@ def home():
     return render_template("welcome.html", club=club, competitions=competitions)
 
 
-@main.route("/book/<competition>/<club>")
+@main.route("/book/<club>/<competition>")
 def book(competition, club):
     clubs = current_app.clubs
     competitions = current_app.competitions
