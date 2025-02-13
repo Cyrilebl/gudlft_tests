@@ -46,7 +46,7 @@ def test_book(client):
     """Test the booking page with valid competition and club"""
     competition_name = "Competition Test"
     club_name = "Club Test"
-    response = client.get(f"/book/{competition_name}/{club_name}")
+    response = client.get(f"/book/{club_name}/{competition_name}")
     assert response.status_code == 200
 
 
