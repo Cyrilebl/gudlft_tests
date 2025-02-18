@@ -1,8 +1,9 @@
+import os
 import json
+import secrets
 from datetime import datetime
 from flask import (
-    Blueprint,
-    current_app,
+    Flask,
     render_template,
     request,
     redirect,
@@ -12,67 +13,80 @@ from flask import (
 )
 
 
-main = Blueprint("main", __name__)
+def load_json(file_name):
+    file_path = os.path.join("data", file_name)
+    with open(file_path) as file:
+        return json.load(file)
 
 
-@main.route("/")
+def load_clubs():
+    return load_json("clubs.json")["clubs"]
+
+
+def load_competitions():
+    return load_json("competitions.json")["competitions"]
+
+
+app = Flask(__name__)
+app.secret_key = secrets.token_hex(32)
+
+# Load data
+clubs = load_clubs()
+competitions = load_competitions()
+
+
+@app.route("/")
 def index():
     return render_template("index.html")
 
 
-@main.route("/club-board")
+@app.route("/club-board")
 def club_board():
-    clubs = current_app.clubs
     return render_template("club-board.html", clubs=clubs)
 
 
-@main.route("/login", methods=["POST"])
+@app.route("/login", methods=["POST"])
 def login():
     email = request.form["email"]
+    print("Email reçu dans Flask:", email, flush=True)
+    print("Clubs disponibles dans Flask au moment de la connexion:", clubs, flush=True)
+    try:
+        club = [c for c in clubs if c["email"] == email][0]
+        session["club"] = club["name"]
+        return redirect(url_for("home"))
 
-    if not email:
-        flash("Email is required")
+    except IndexError:
+        if request.form["email"] == "":
+            flash("Email is required")
+        else:
+            flash("Email not found")
         return render_template("index.html")
 
-    clubs = current_app.clubs
-    club = next((club for club in clubs if club["email"] == email), None)
 
-    if club is None:
-        flash("Email not found")
-        return render_template("index.html")
-
-    session["club_name"] = club["name"]
-    return redirect(url_for("main.home"))
-
-
-@main.route("/home")
+@app.route("/home")
 def home():
-    club_name = session.get("club_name")
-    clubs = current_app.clubs
-    competitions = current_app.competitions
-
-    club = next((club for club in clubs if club["name"] == club_name))
-
+    club_name = session.get("club")
+    club = next((c for c in clubs if c["name"] == club_name), None)
     return render_template("welcome.html", club=club, competitions=competitions)
 
 
-@main.route("/book/<club>/<competition>")
+@app.route("/book/<club>/<competition>")
 def book(competition, club):
-    clubs = current_app.clubs
-    competitions = current_app.competitions
-    found_club = [c for c in clubs if c["name"] == club][0]
-    found_competition = [c for c in competitions if c["name"] == competition][0]
-    return render_template(
-        "booking.html", club=found_club, competition=found_competition
+    found_club = next((c for c in clubs if c["name"] == club), None)
+    found_competition = next(
+        (c for c in competitions if c["name"] == competition), None
     )
+    if found_club and found_competition:
+        return render_template(
+            "booking.html", club=found_club, competition=found_competition
+        )
+    else:
+        flash("Something went wrong - Please try again")
+        return render_template("welcome.html", club=club, competitions=competitions)
 
 
-@main.route("/purchase-places", methods=["POST"])
+@app.route("/purchase-places", methods=["POST"])
 def purchase_places():
-    # Retrieve the list of clubs and competitions
-    clubs = current_app.clubs
-    competitions = current_app.competitions
-
     # Find the selected club and competition based on the submitted form data
     club = [c for c in clubs if c["name"] == request.form["club"]][0]
     competition = [c for c in competitions if c["name"] == request.form["competition"]][
@@ -133,19 +147,22 @@ def purchase_places():
         club["places_already_booked"].get(competition["name"], 0) + places_required
     )
 
-    if not current_app.config["TESTING"]:
-        # Update club points
-        with open("data/clubs.json", "w") as file:
-            json.dump({"clubs": clubs}, file)
+    # Update club points
+    with open("data/clubs.json", "w") as file:
+        json.dump({"clubs": clubs}, file)
 
-        # Update competition places
-        with open("data/competitions.json", "w") as file:
-            json.dump({"competitions": competitions}, file)
+    # Update competition places
+    with open("data/competitions.json", "w") as file:
+        json.dump({"competitions": competitions}, file)
 
     flash("Great - booking complete!")
     return render_template("welcome.html", club=club, competitions=competitions)
 
 
-@main.route("/logout")
+@app.route("/logout")
 def logout():
-    return redirect(url_for("main.index"))
+    return redirect(url_for("index"))
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
