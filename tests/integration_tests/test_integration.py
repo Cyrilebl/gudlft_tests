@@ -33,3 +33,17 @@ def test_booking_without_login(client):
     )
 
     assert response.status_code == 400
+
+
+# def test_purchase_places_with_valid_number(self):
+#     """Test with a club having enough points and a competition with enough places."""
+#     response = self.client.post(
+#         "/purchase-places",
+#         data={**self.common_data, "places": "3"},
+#     )
+#     assert response.status_code == 200
+#     assert b"Great - booking complete!" in response.data
+#     club = self.client.application.clubs[0]
+#     assert club["points"] == "7"
+#     competition = self.client.application.competitions[0]
+#     assert competition["numberOfPlaces"] == "2"
