@@ -9,7 +9,7 @@ GUDLFT Registration
 Please enter your secretary email to continue:
 <form action="login" method="post">
   <label for="email">Email:</label>
-  <input type="email" name="email" id="" />
+  <input type="email" name="email" />
   <button type="submit">Enter</button>
 </form>
 {% with messages = get_flashed_messages()%}
@@ -21,5 +21,5 @@ Please enter your secretary email to continue:
 </ul>
 {% endif %}
 {% endwith %}
-<a href="{{ url_for('main.club_board', club=club, competitions=competitions) }}">Club board</a>
+<a href="{{ url_for('club_board', club=club) }}">Club board</a>
 {% endblock %}

@@ -23,5 +23,5 @@ Places available: {{competition['numberOfPlaces']}}
 </ul>
 {% endif %}
 {% endwith %}
-<a href="{{ url_for('main.home', club=club, competitions=competitions) }}">Back</a>
+<a href="{{ url_for('home', club=club, competitions=competitions) }}">Back</a>
 {% endblock %}
