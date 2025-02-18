@@ -1,13 +1,12 @@
 import pytest
-
-from app import create_app
-from config import TestingConfig
+import server
+from server import app
 
 
 @pytest.fixture
 def client():
     """Create a test client for making requests"""
-    app = create_app(TestingConfig)
+    app.config["TESTING"] = True
     with app.test_client() as client:
         yield client
 
@@ -23,8 +22,9 @@ def setup(client, monkeypatch):
             "numberOfPlaces": "5",
         }
     ]
-    monkeypatch.setattr(client.application, "clubs", fake_club)
-    monkeypatch.setattr(client.application, "competitions", fake_competition)
+
+    monkeypatch.setattr(server, "clubs", fake_club)
+    monkeypatch.setattr(server, "competitions", fake_competition)
 
     # Default values to avoid repetitions
     client.common_data = {"club": "Club Test", "competition": "Competition Test"}
