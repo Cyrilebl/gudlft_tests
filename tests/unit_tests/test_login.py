@@ -1,5 +1,4 @@
 def test_login_valid_email(client):
-    """Test with a valid email"""
     response = client.post(
         "/login", data={"email": "test@example.com"}, follow_redirects=True
     )
@@ -9,7 +8,6 @@ def test_login_valid_email(client):
 
 
 def test_login_invalid_email(client):
-    """Test with an invalid email"""
     response = client.post(
         "/login",
         data={"email": "wrong@example.com"},
@@ -19,7 +17,6 @@ def test_login_invalid_email(client):
 
 
 def test_login_missing_email(client):
-    """Test with no email provided"""
     response = client.post("/login", data={"email": ""})
     assert response.status_code == 200
     assert b"Email is required" in response.data
