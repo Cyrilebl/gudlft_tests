@@ -10,7 +10,11 @@ from flask import (
     flash,
     url_for,
     session,
+    jsonify,
 )
+
+app = Flask(__name__)
+app.secret_key = secrets.token_hex(32)
 
 
 def load_json(file_name):
@@ -26,9 +30,6 @@ def load_clubs():
 def load_competitions():
     return load_json("competitions.json")["competitions"]
 
-
-app = Flask(__name__)
-app.secret_key = secrets.token_hex(32)
 
 # Load data
 clubs = load_clubs()
@@ -48,8 +49,6 @@ def club_board():
 @app.route("/login", methods=["POST"])
 def login():
     email = request.form["email"]
-    print("Email reçu dans Flask:", email, flush=True)
-    print("Clubs disponibles dans Flask au moment de la connexion:", clubs, flush=True)
     try:
         club = [c for c in clubs if c["email"] == email][0]
         session["club"] = club["name"]
@@ -147,13 +146,14 @@ def purchase_places():
         club["places_already_booked"].get(competition["name"], 0) + places_required
     )
 
-    # Update club points
-    with open("data/clubs.json", "w") as file:
-        json.dump({"clubs": clubs}, file)
+    if not app.config["TESTING"]:
+        # Update club points
+        with open("data/clubs.json", "w") as file:
+            json.dump({"clubs": clubs}, file)
 
-    # Update competition places
-    with open("data/competitions.json", "w") as file:
-        json.dump({"competitions": competitions}, file)
+        # Update competition places
+        with open("data/competitions.json", "w") as file:
+            json.dump({"competitions": competitions}, file)
 
     flash("Great - booking complete!")
     return render_template("welcome.html", club=club, competitions=competitions)
@@ -162,6 +162,14 @@ def purchase_places():
 @app.route("/logout")
 def logout():
     return redirect(url_for("index"))
+
+
+@app.route("/set-test-data", methods=["POST"])
+def set_test_data():
+    global clubs, competitions
+    clubs = request.json.get("clubs", [])
+    competitions = request.json.get("competitions", [])
+    return jsonify({"message": "Test data updated"}), 200
 
 
 if __name__ == "__main__":
