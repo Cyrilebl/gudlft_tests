@@ -22,7 +22,7 @@ def setup(client, monkeypatch):
             "numberOfPlaces": "5",
         }
     ]
-
+    # Patch clubs and competitions with fake data
     monkeypatch.setattr(server, "clubs", fake_club)
     monkeypatch.setattr(server, "competitions", fake_competition)
 
