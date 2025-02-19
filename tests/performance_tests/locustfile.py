@@ -1,24 +1,29 @@
-import json
 import random
 from locust import HttpUser, task
 
 
 class ProjectPerfTest(HttpUser):
     def on_start(self):
-        with open("data/clubs.json", "r") as file:
-            clubs_data = json.load(file)
-            self.clubs = [club["name"] for club in clubs_data["clubs"]]
-            self.emails = [club["email"] for club in clubs_data["clubs"]]
+        "Send data test to Flask via an HTTP request"
+        self.test_data = {
+            "clubs": [
+                {"name": "Club Test", "email": "test@example.com", "points": "10"}
+            ],
+            "competitions": [
+                {
+                    "name": "Competition Test",
+                    "date": "2027-01-01 10:00:00",
+                    "numberOfPlaces": "5",
+                }
+            ],
+        }
 
-        with open("data/competitions.json", "r") as file:
-            competitions_data = json.load(file)
-            self.competitions = [
-                comp["name"] for comp in competitions_data["competitions"]
-            ]
+        self.club_email = self.test_data["clubs"][0]["email"]
+        self.club_name = self.test_data["clubs"][0]["name"]
+        self.competition_name = self.test_data["competitions"][0]["name"]
 
-        self.email = random.choice(self.emails)
-        self.club = random.choice(self.clubs)
-        self.competition = random.choice(self.competitions)
+        # Send data test to Flask
+        self.client.post("/set-test-data", json=self.test_data)
 
     @task
     def index(self):
@@ -30,15 +35,15 @@ class ProjectPerfTest(HttpUser):
 
     @task
     def login(self):
-        self.client.post("/login", {"email": self.email})
+        self.client.post("/login", {"email": self.club_email})
 
     @task
     def home(self):
         self.client.get("/home")
 
-    @task(4)
+    @task
     def book(self):
-        self.client.get(f"/book/{self.club}/{self.competition}")
+        self.client.get(f"/book/{self.club_name}/{self.competition_name}")
 
     @task
     def purchase_places(self):
@@ -46,8 +51,8 @@ class ProjectPerfTest(HttpUser):
         self.client.post(
             "/purchase-places",
             {
-                "club": self.club,
-                "competition": self.competition,
+                "club": self.club_name,
+                "competition": self.competition_name,
                 "places": str(places),
             },
         )
