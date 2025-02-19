@@ -12,6 +12,7 @@ class TestPurchasePlaces:
         response = self.client.post(
             "/purchase-places",
             data={**self.common_data, "places": "3"},
+            follow_redirects=True,
         )
         assert response.status_code == 200
         assert b"Great - booking complete!" in response.data
@@ -19,18 +20,21 @@ class TestPurchasePlaces:
     @pytest.mark.parametrize(
         "places, expected_message",
         [
-            ("", b"Please enter a number"),
-            ("-2", b"Please enter a number greater than zero"),
-            ("0", b"Please enter a number greater than zero"),
+            ("", "Please enter a number"),
+            ("-2", "Please enter a number greater than zero"),
+            ("0", "Please enter a number greater than zero"),
+            ("13", "You cannot book more than 12 places"),
+            ("11", "Sorry, your club has 10 points left"),
+            ("6", "Sorry, the competition has 5 places left"),
         ],
     )
-    def test_purchase_places_invalid_numbers(self, places, expected_message):
+    def test_purchase_places_invalid_input(self, places, expected_message):
         response = self.client.post(
             "/purchase-places",
             data={**self.common_data, "places": places},
         )
         assert response.status_code == 200
-        assert expected_message in response.data
+        assert expected_message.encode() in response.data
 
     @freeze_time("2030-01-01 12:00:00")
     def test_purchase_in_past_competition(self):
@@ -46,21 +50,3 @@ class TestPurchasePlaces:
             b"This competition already took place on January 01, 2027, at 10:00 AM"
             in response.data
         )
-
-    @pytest.mark.parametrize(
-        "places, expected_message",
-        [
-            ("13", b"You cannot book more than 12 places"),
-            ("11", b"Sorry, your club has 10 points left"),
-            ("6", b"Sorry, the competition has 5 places left"),
-        ],
-    )
-    def test_purchase_places_invalid_requests(self, places, expected_message):
-        response = self.client.post(
-            "/purchase-places",
-            data={**self.common_data, "places": places},
-        )
-        assert response.status_code == 200
-        assert expected_message in response.data
-
-    # test lire bd pour verifier deduction place
