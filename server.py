@@ -155,7 +155,7 @@ def purchase_places():
             json.dump({"competitions": competitions}, file)
 
     flash("Great - booking complete!")
-    return render_template("welcome.html", club=club, competitions=competitions)
+    return redirect(url_for("home"))
 
 
 @app.route("/logout")
