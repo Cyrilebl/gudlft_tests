@@ -16,6 +16,7 @@ class ProjectPerfTest(HttpUser):
                     "numberOfPlaces": "5",
                 }
             ],
+            "testing": True,
         }
 
         self.club_email = self.test_data["clubs"][0]["email"]
