@@ -10,6 +10,7 @@ from flask import (
     flash,
     url_for,
     session,
+    jsonify,
 )
 
 app = Flask(__name__)
@@ -169,6 +170,7 @@ def set_test_data():
     global clubs, competitions
     clubs = request.json.get("clubs", [])
     competitions = request.json.get("competitions", [])
+    return jsonify({"message": "Test data successfully set"})
 
 
 if __name__ == "__main__":
