@@ -10,7 +10,6 @@ from flask import (
     flash,
     url_for,
     session,
-    jsonify,
 )
 
 app = Flask(__name__)
@@ -166,10 +165,10 @@ def logout():
 
 @app.route("/set-test-data", methods=["POST"])
 def set_test_data():
+    app.config["TESTING"] = request.json.get("testing", False)
     global clubs, competitions
     clubs = request.json.get("clubs", [])
     competitions = request.json.get("competitions", [])
-    return jsonify({"message": "Test data updated"}), 200
 
 
 if __name__ == "__main__":

@@ -20,8 +20,9 @@ def inject_test_data():
                 "numberOfPlaces": "5",
             }
         ],
+        "testing": True,
     }
-    response = requests.post(f"{URL}/set-test-data", json=test_data)
+    requests.post(f"{URL}/set-test-data", json=test_data)
 
 
 def visit_homepage():
