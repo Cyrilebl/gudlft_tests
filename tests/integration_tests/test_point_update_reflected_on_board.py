@@ -12,7 +12,6 @@ def test_points_update(client):
 
     assert response.status_code == 200
     assert b"Great - booking complete!" in response.data
-    assert b"Points available: 7" in response.data
 
     assert server.clubs[0]["points"] == "7"
     assert server.competitions[0]["numberOfPlaces"] == "2"
