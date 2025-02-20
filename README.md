@@ -4,7 +4,7 @@ This application is a platform dedicated to booking tickets for participation in
 
 The goal is to fix the errors and bugs reported in the Issues section of the [Python_Testing](https://github.com/OpenClassrooms-Student-Center/Python_Testing) project and implement the requested feature.
 
-## Project Initialization
+## ⚙️ Project Initialization
 
 1. Clone the repository :
 
@@ -41,17 +41,17 @@ pip install -r requirements.txt
 python server.py
 ```
 
-## External Resources
+## 🌐 External Resources
 
 - [Flask Documentation](https://flask-fr.readthedocs.io/)
 - [Coverage Documentation](https://coverage.readthedocs.io/en/7.6.12/)
 - [Locust Documentation](https://locust.io/)
 
-## Tests
+## 🧪 Tests
 
 This project includes several types of tests : unit, integration, functional, and performance tests.
 
-### Running the Tests
+### 🏃 Running the Tests
 
 ```bash
    pytest
@@ -59,7 +59,7 @@ This project includes several types of tests : unit, integration, functional, an
 
 > ⚠️ **Note:** Before running functional tests with `Selenium`, make sure the server is started.
 
-### Test Coverage
+### 📊 Test Coverage
 
 The `Coverage` module is used to analyze test coverage.
 
@@ -70,7 +70,7 @@ coverage run -m pytest
 coverage report
 ```
 
-### Performance Tests
+### 🚀 Performance Tests
 
 Performance tests are conducted using `Locust`.
 
@@ -85,6 +85,6 @@ locust -f tests/performance_tests/locustfile.py
 4. Configure the other parameters
 5. Start the test by clicking the **"Start"** button
 
-## Frequently Asked Questions
+## ❓ Frequently Asked Questions
 
 If you have any questions, feel free to open a new issue for assistance.
